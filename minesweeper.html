@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINESWEEPER — SHAPESHIFTER EDITION</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --panel: #0d1220;
+    --border: #1a2540;
+    --accent: #00f5c4;
+    --accent2: #ff4b6e;
+    --accent3: #f5c400;
+    --text: #c8d8f0;
+    --text-dim: #4a6080;
+    --cell-hidden: #1a2540;
+    --cell-hover: #243050;
+    --cell-revealed: #0d1220;
+    --cell-border-light: #2a3a60;
+    --cell-border-dark: #080c18;
+    --mine-color: #ff4b6e;
+    --flag-color: #f5c400;
+    --glow: 0 0 12px rgba(0,245,196,0.4);
+    --glow2: 0 0 12px rgba(255,75,110,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    width: 100%;
+    text-align: center;
+    padding: 24px 16px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-shadow: 0 0 20px rgba(0,245,196,0.6), 0 0 40px rgba(0,245,196,0.2);
+  }
+
+  header p {
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    margin-top: 4px;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    padding: 20px 16px;
+    max-width: 900px;
+    width: 100%;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .control-group label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .shape-buttons, .diff-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  .btn.active {
+    background: rgba(0,245,196,0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  .btn-start {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    padding: 10px 28px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    align-self: flex-end;
+  }
+
+  .btn-start:hover {
+    box-shadow: 0 0 20px rgba(0,245,196,0.6);
+    transform: translateY(-1px);
+  }
+
+  .btn-home {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .btn-home:hover {
+    background: rgba(0,245,196,0.08);
+    box-shadow: var(--glow);
+    transform: translateY(-1px);
+  }
+
+  .hud {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 16px 16px;
+    font-family: 'Orbitron', monospace;
+  }
+
+  .hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .hud-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    color: var(--text-dim);
+  }
+
+  .hud-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-shadow: var(--glow);
+    min-width: 3ch;
+    text-align: center;
+  }
+
+  #timer-val { color: var(--accent3); text-shadow: 0 0 12px rgba(245,196,0,0.5); }
+  #mines-val { color: var(--accent2); text-shadow: var(--glow2); }
+
+  .game-area {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0 16px 40px;
+  }
+
+  #board-canvas-wrapper {
+    position: relative;
+  }
+
+  #board {
+    display: grid;
+    gap: 2px;
+    user-select: none;
+  }
+
+  .cell {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.08s, transform 0.08s;
+    position: relative;
+    font-family: 'Orbitron', monospace;
+  }
+
+  .cell.inactive {
+    background: transparent !important;
+    pointer-events: none;
+    border: none !important;
+  }
+
+  .cell.hidden {
+    background: var(--cell-hidden);
+    border: 1px solid var(--cell-border-light);
+    border-right-color: var(--cell-border-dark);
+    border-bottom-color: var(--cell-border-dark);
+  }
+
+  .cell.hidden:hover {
+    background: var(--cell-hover);
+    box-shadow: inset 0 0 8px rgba(0,245,196,0.1);
+  }
+
+  .cell.hidden:active {
+    transform: scale(0.95);
+  }
+
+  .cell.revealed {
+    background: var(--cell-revealed);
+    border: 1px solid rgba(255,255,255,0.04);
+    cursor: default;
+  }
+
+  .cell.flagged {
+    background: var(--cell-hidden);
+    border: 1px solid var(--flag-color);
+    box-shadow: inset 0 0 6px rgba(245,196,0,0.15);
+  }
+
+  .cell.mine-hit {
+    background: rgba(255,75,110,0.25);
+    border: 1px solid var(--mine-color);
+    box-shadow: inset 0 0 12px rgba(255,75,110,0.3), var(--glow2);
+    animation: mineFlash 0.3s ease;
+  }
+
+  .cell.mine-revealed {
+    background: rgba(255,75,110,0.08);
+    border: 1px solid rgba(255,75,110,0.3);
+  }
+
+  @keyframes mineFlash {
+    0% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  /* Number colors */
+  .n1 { color: #00c8ff; }
+  .n2 { color: #00f5c4; }
+  .n3 { color: #f5c400; }
+  .n4 { color: #ff8c00; }
+  .n5 { color: #ff4b6e; }
+  .n6 { color: #c800ff; }
+  .n7 { color: #ff00aa; }
+  .n8 { color: #ffffff; }
+
+  .flag-icon { font-size: 1rem; }
+  .mine-icon { font-size: 1rem; }
+
+  /* Overlay messages */
+  #overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  #overlay.show { display: flex; }
+
+  .overlay-box {
+    background: var(--panel);
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 40px rgba(0,245,196,0.3);
+    padding: 40px 56px;
+    text-align: center;
+    animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .overlay-box.lose {
+    border-color: var(--accent2);
+    box-shadow: 0 0 40px rgba(255,75,110,0.3);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .overlay-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+    letter-spacing: 0.1em;
+  }
+
+  .overlay-title.win { color: var(--accent); text-shadow: var(--glow); }
+  .overlay-title.lose { color: var(--accent2); text-shadow: var(--glow2); }
+
+  .overlay-sub {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    margin-bottom: 24px;
+    letter-spacing: 0.15em;
+  }
+
+  .right-click-hint {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    padding-bottom: 12px;
+  }
+
+  /* Shape preview icons */
+  .shape-btn-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .shape-preview {
+    width: 28px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .shape-preview svg { width: 100%; height: 100%; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>◈ MINESWEEPER ◈</h1>
+  <p>SHAPESHIFTER EDITION</p>
+</header>
+
+<div class="controls">
+  <div class="control-group">
+    <label>Map Shape</label>
+    <div class="shape-buttons" id="shape-buttons">
+      <button class="btn active" data-shape="square" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><rect x="2" y="2" width="24" height="16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+          SQUARE
+        </div>
+      </button>
+      <button class="btn" data-shape="diamond" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><polygon points="14,2 26,10 14,18 2,10" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+          DIAMOND
+        </div>
+      </button>
+      <button class="btn" data-shape="cross" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><rect x="10" y="2" width="8" height="16" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="6" width="24" height="8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
+          CROSS
+        </div>
+      </button>
+      <button class="btn" data-shape="ring" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><rect x="2" y="2" width="24" height="16" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="6" width="12" height="8" fill="currentColor" opacity="0.3"/></svg></div>
+          RING
+        </div>
+      </button>
+      <button class="btn" data-shape="triangle" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><polygon points="14,2 26,18 2,18" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+          TRIANGLE
+        </div>
+      </button>
+      <button class="btn" data-shape="hexagon" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><polygon points="14,2 24,7 24,13 14,18 4,13 4,7" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+          HEXAGON
+        </div>
+      </button>
+      <button class="btn" data-shape="spiral" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><path d="M14,10 m-8,0 a8,6 0 1,1 16,0 a6,4.5 0 1,1 -12,0 a4,3 0 1,1 8,0" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
+          SPIRAL
+        </div>
+      </button>
+      <button class="btn" data-shape="plus_ring" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><line x1="14" y1="2" x2="14" y2="18" stroke="currentColor" stroke-width="2"/><line x1="2" y1="10" x2="26" y2="10" stroke="currentColor" stroke-width="2"/><circle cx="14" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
+          STAR+
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label>Difficulty</label>
+    <div class="diff-buttons" id="diff-buttons">
+      <button class="btn active" data-diff="easy" onclick="selectDiff(this)">EASY</button>
+      <button class="btn" data-diff="medium" onclick="selectDiff(this)">MEDIUM</button>
+      <button class="btn" data-diff="hard" onclick="selectDiff(this)">HARD</button>
+    </div>
+  </div>
+
+  <div class="control-group" style="justify-content: flex-end">
+    <label>&nbsp;</label>
+    <div class="diff-buttons">
+      <button class="btn-start" onclick="startGame()">▶ NEW GAME</button>
+      <button class="btn-home" onclick="window.location.href='index.html'">← Back to Home</button>
+    </div>
+  </div>
+</div>
+
+<div class="hud">
+  <div class="hud-item">
+    <span class="hud-label">⚑ MINES</span>
+    <span class="hud-value" id="mines-val">00</span>
+  </div>
+  <div class="hud-item">
+    <span class="hud-label">◈ FLAGS</span>
+    <span class="hud-value" id="flags-val">00</span>
+  </div>
+  <div class="hud-item">
+    <span class="hud-label">◷ TIME</span>
+    <span class="hud-value" id="timer-val">00</span>
+  </div>
+</div>
+
+<p class="right-click-hint">[ RIGHT-CLICK OR LONG-PRESS TO PLANT FLAG ]</p>
+
+<div class="game-area">
+  <div id="board"></div>
+</div>
+
+<div id="overlay">
+  <div class="overlay-box" id="overlay-box">
+    <div class="overlay-title" id="overlay-title">WIN</div>
+    <div class="overlay-sub" id="overlay-sub">Sector cleared.</div>
+    <button class="btn-start" onclick="startGame()">▶ PLAY AGAIN</button>
+    <button class="btn-home" onclick="window.location.href='index.html'">← Back to Home</button>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let selectedShape = 'square';
+let selectedDiff  = 'easy';
+let grid = [];         // {mine, revealed, flagged, count, active}
+let COLS, ROWS;
+let activeCells = new Set();  // "row,col"
+let mineCount = 0;
+let flagCount = 0;
+let timerInterval = null;
+let seconds = 0;
+let gameOver = false;
+let firstClick = true;
+let longPressTimer = null;
+
+// ── Difficulty ─────────────────────────────────────────────────────────────
+const DIFF = {
+  easy:   { mineRate: 0.12 },
+  medium: { mineRate: 0.18 },
+  hard:   { mineRate: 0.26 },
+};
+
+// ── Shape Generators ───────────────────────────────────────────────────────
+// Each returns a Set of "row,col" strings that are ACTIVE
+
+function key(r,c){ return `${r},${c}`; }
+
+function shapeSquare(size){
+  const cells = new Set();
+  for(let r=0;r<size;r++) for(let c=0;c<size;c++) cells.add(key(r,c));
+  return { cells, rows: size, cols: size };
+}
+
+function shapeDiamond(size){
+  const cells = new Set();
+  const half = Math.floor(size/2);
+  for(let r=0;r<size;r++) for(let c=0;c<size;c++){
+    if(Math.abs(r-half)+Math.abs(c-half) <= half) cells.add(key(r,c));
+  }
+  return { cells, rows: size, cols: size };
+}
+
+function shapeCross(size){
+  const cells = new Set();
+  const third = Math.floor(size/3);
+  for(let r=0;r<size;r++) for(let c=0;c<size;c++){
+    const inVert = c>=third && c<size-third;
+    const inHoriz= r>=third && r<size-third;
+    if(inVert||inHoriz) cells.add(key(r,c));
+  }
+  return { cells, rows: size, cols: size };
+}
+
+function shapeRing(size){
+  const cells = new Set();
+  const half = Math.floor(size/2);
+  const inner = Math.floor(size/4);
+  for(let r=0;r<size;r++) for(let c=0;c<size;c++){
+    const d = Math.abs(r-half)+Math.abs(c-half);
+    if(d<=half && d>inner) cells.add(key(r,c));
+  }
+  return { cells, rows: size, cols: size };
+}
+
+function shapeTriangle(size){
+  const cells = new Set();
+  for(let r=0;r<size;r++){
+    const width = Math.round((r+1)*(size/(size)));
+    const start = Math.floor((size-width)/2);
+    for(let c=start;c<start+width;c++) cells.add(key(r,c));
+  }
+  return { cells, rows: size, cols: size };
+}
+
+function shapeHexagon(size){
+  const cells = new Set();
+  const half = Math.floor(size/2);
+  for(let r=0;r<size;r++) for(let c=0;c<size;c++){
+    const dr = Math.abs(r-half);
+    const dc = Math.abs(c-half);
+    if(dc <= half - Math.floor(dr/2)) cells.add(key(r,c));
+  }
+  return { cells, rows: size, cols: size };
+}
+
+function shapeSpiral(size){
+  const cells = new Set();
+  const half = size/2;
+  for(let r=0;r<size;r++) for(let c=0;c<size;c++){
+    const dr = r - half + 0.5;
+    const dc = c - half + 0.5;
+    const dist = Math.sqrt(dr*dr+dc*dc);
+    const angle = (Math.atan2(dr,dc) + Math.PI) / (2*Math.PI);
+    const spiral = (dist / (half) - angle * 0.9) % 1;
+    if(spiral < 0.45 && dist < half*0.98) cells.add(key(r,c));
+  }
+  return { cells, rows: size, cols: size };
+}
+
+function shapePlusRing(size){
+  const cells = new Set();
+  const half = Math.floor(size/2);
+  const ring  = Math.floor(size/3);
+  const arm   = Math.floor(size/5);
+  for(let r=0;r<size;r++) for(let c=0;c<size;c++){
+    const dc = Math.abs(c-half);
+    const dr = Math.abs(r-half);
+    const dist = Math.sqrt((r-half)**2+(c-half)**2);
+    const onRing = dist>=ring-1 && dist<=ring+1;
+    const onVert = dc<=arm;
+    const onHoriz= dr<=arm;
+    if(onRing||onVert||onHoriz) cells.add(key(r,c));
+  }
+  return { cells, rows: size, cols: size };
+}
+
+const SHAPES = {
+  square:   shapeSquare,
+  diamond:  shapeDiamond,
+  cross:    shapeCross,
+  ring:     shapeRing,
+  triangle: shapeTriangle,
+  hexagon:  shapeHexagon,
+  spiral:   shapeSpiral,
+  plus_ring:shapePlusRing,
+};
+
+const SHAPE_SIZES = {
+  easy: 13, medium: 17, hard: 21,
+};
+
+// ── UI Selection ───────────────────────────────────────────────────────────
+function selectShape(btn){
+  document.querySelectorAll('#shape-buttons .btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedShape = btn.dataset.shape;
+}
+
+function selectDiff(btn){
+  document.querySelectorAll('#diff-buttons .btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedDiff = btn.dataset.diff;
+}
+
+// ── Game Init ──────────────────────────────────────────────────────────────
+function startGame(){
+  clearInterval(timerInterval);
+  seconds = 0;
+  flagCount = 0;
+  gameOver = false;
+  firstClick = true;
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('timer-val').textContent = '00';
+
+  const size = SHAPE_SIZES[selectedDiff];
+  const { cells, rows, cols } = SHAPES[selectedShape](size);
+  ROWS = rows; COLS = cols;
+  activeCells = cells;
+
+  // Build grid
+  grid = [];
+  for(let r=0;r<ROWS;r++){
+    grid[r] = [];
+    for(let c=0;c<COLS;c++){
+      grid[r][c] = { mine:false, revealed:false, flagged:false, count:0,
+                     active: cells.has(key(r,c)) };
+    }
+  }
+
+  mineCount = 0;
+  updateHUD();
+  renderBoard();
+}
+
+function placeMines(firstR, firstC){
+  const rate = DIFF[selectedDiff].mineRate;
+  const safe = new Set();
+  // Safe zone: 1-cell radius around first click
+  for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+    const rr=firstR+dr, cc=firstC+dc;
+    if(rr>=0&&rr<ROWS&&cc>=0&&cc<COLS) safe.add(key(rr,cc));
+  }
+  activeCells.forEach(k=>{
+    if(safe.has(k)) return;
+    const [r,c] = k.split(',').map(Number);
+    if(Math.random()<rate){ grid[r][c].mine=true; mineCount++; }
+  });
+  // Compute neighbor counts
+  activeCells.forEach(k=>{
+    const [r,c] = k.split(',').map(Number);
+    if(grid[r][c].mine) return;
+    let cnt=0;
+    neighbors(r,c).forEach(([nr,nc])=>{ if(grid[nr][nc].mine) cnt++; });
+    grid[r][c].count = cnt;
+  });
+  updateHUD();
+}
+
+function neighbors(r,c){
+  const res=[];
+  for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+    if(dr===0&&dc===0) continue;
+    const nr=r+dr,nc=c+dc;
+    if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&grid[nr][nc].active) res.push([nr,nc]);
+  }
+  return res;
+}
+
+// ── Rendering ──────────────────────────────────────────────────────────────
+function renderBoard(){
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  board.style.gridTemplateColumns = `repeat(${COLS}, 32px)`;
+  board.style.gridTemplateRows    = `repeat(${ROWS}, 32px)`;
+
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const cellData = grid[r][c];
+
+    if(!cellData.active){
+      cell.classList.add('inactive');
+    } else if(cellData.revealed){
+      cell.classList.add('revealed');
+      if(cellData.mine){
+        cell.classList.add('mine-revealed');
+        cell.innerHTML = '<span class="mine-icon">💥</span>';
+      } else if(cellData.count>0){
+        cell.classList.add(`n${cellData.count}`);
+        cell.textContent = cellData.count;
+      }
+    } else if(cellData.flagged){
+      cell.classList.add('flagged');
+      cell.innerHTML = '<span class="flag-icon">⚑</span>';
+    } else {
+      cell.classList.add('hidden');
+    }
+
+    if(cellData.active && !gameOver){
+      cell.addEventListener('click', ()=>handleClick(r,c));
+      cell.addEventListener('contextmenu', e=>{ e.preventDefault(); handleFlag(r,c); });
+      // Long press for mobile
+      cell.addEventListener('touchstart', e=>{ e.preventDefault(); longPressTimer=setTimeout(()=>handleFlag(r,c),450); }, {passive:false});
+      cell.addEventListener('touchend',   ()=>clearTimeout(longPressTimer));
+      cell.addEventListener('touchmove',  ()=>clearTimeout(longPressTimer));
+    }
+
+    board.appendChild(cell);
+  }
+}
+
+function cellIndex(r,c){ return r*COLS+c; }
+
+function getCellEl(r,c){
+  return document.getElementById('board').children[cellIndex(r,c)];
+}
+
+function updateCell(r,c){
+  const cellData = grid[r][c];
+  const el = getCellEl(r,c);
+  if(!el||!cellData.active) return;
+  el.className = 'cell';
+  el.innerHTML = '';
+  if(cellData.revealed){
+    el.classList.add('revealed');
+    if(cellData.mine){
+      el.classList.add('mine-revealed');
+      el.innerHTML='<span class="mine-icon">💥</span>';
+    } else if(cellData.count>0){
+      el.classList.add(`n${cellData.count}`);
+      el.textContent=cellData.count;
+    }
+  } else if(cellData.flagged){
+    el.classList.add('flagged');
+    el.innerHTML='<span class="flag-icon">⚑</span>';
+  } else {
+    el.classList.add('hidden');
+  }
+}
+
+// ── Interaction ────────────────────────────────────────────────────────────
+function handleClick(r,c){
+  if(gameOver) return;
+  const cell = grid[r][c];
+  if(cell.revealed||cell.flagged) return;
+
+  if(firstClick){
+    firstClick=false;
+    placeMines(r,c);
+    startTimer();
+  }
+
+  if(cell.mine){ revealMine(r,c); return; }
+  flood(r,c);
+  checkWin();
+}
+
+function handleFlag(r,c){
+  if(gameOver) return;
+  const cell = grid[r][c];
+  if(cell.revealed) return;
+  cell.flagged = !cell.flagged;
+  flagCount += cell.flagged ? 1 : -1;
+  updateCell(r,c);
+  updateHUD();
+}
+
+function flood(r,c){
+  const stack = [[r,c]];
+  const visited = new Set();
+  while(stack.length){
+    const [cr,cc] = stack.pop();
+    const k = key(cr,cc);
+    if(visited.has(k)) continue;
+    visited.add(k);
+    const cell = grid[cr][cc];
+    if(!cell.active||cell.revealed||cell.flagged||cell.mine) continue;
+    cell.revealed=true;
+    updateCell(cr,cc);
+    if(cell.count===0) neighbors(cr,cc).forEach(([nr,nc])=>stack.push([nr,nc]));
+  }
+}
+
+function revealMine(r,c){
+  gameOver=true;
+  clearInterval(timerInterval);
+  grid[r][c].revealed=true;
+  const el=getCellEl(r,c);
+  el.className='cell mine-hit';
+  el.innerHTML='<span class="mine-icon">💣</span>';
+  // Reveal all mines with delay
+  let i=0;
+  activeCells.forEach(k=>{
+    const [mr,mc]=k.split(',').map(Number);
+    if(grid[mr][mc].mine&&!(mr===r&&mc===c)){
+      setTimeout(()=>{
+        grid[mr][mc].revealed=true;
+        updateCell(mr,mc);
+      }, 50*i++);
+    }
+  });
+  setTimeout(()=>showOverlay(false), 50*i+400);
+}
+
+function checkWin(){
+  let unrevealed=0;
+  activeCells.forEach(k=>{
+    const [r,c]=k.split(',').map(Number);
+    if(!grid[r][c].revealed&&!grid[r][c].mine) unrevealed++;
+  });
+  if(unrevealed===0){
+    gameOver=true;
+    clearInterval(timerInterval);
+    showOverlay(true);
+  }
+}
+
+// ── Overlay ────────────────────────────────────────────────────────────────
+function showOverlay(win){
+  const box   = document.getElementById('overlay-box');
+  const title = document.getElementById('overlay-title');
+  const sub   = document.getElementById('overlay-sub');
+  box.className   = 'overlay-box ' + (win?'':'lose');
+  title.className = 'overlay-title ' + (win?'win':'lose');
+  if(win){
+    title.textContent='YOU WIN!';
+    sub.textContent  =`Sector secured in ${seconds}s. ${mineCount} mines neutralized.`;
+  } else {
+    title.textContent='GAME OVER';
+    sub.textContent  =`Signal lost. ${seconds}s elapsed.`;
+  }
+  document.getElementById('overlay').classList.add('show');
+}
+
+// ── HUD ────────────────────────────────────────────────────────────────────
+function updateHUD(){
+  document.getElementById('mines-val').textContent = String(mineCount).padStart(2,'0');
+  document.getElementById('flags-val').textContent = String(flagCount).padStart(2,'0');
+}
+
+function startTimer(){
+  timerInterval=setInterval(()=>{
+    seconds++;
+    document.getElementById('timer-val').textContent=String(seconds).padStart(2,'0');
+  },1000);
+}
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+startGame();
+</script>
+</body>
+</html>

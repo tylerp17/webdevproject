@@ -1,43 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scratch</title>
+    <title>Scratch Page</title>
+    <link rel="stylesheet" href="css/scratch.css">
+
 </head>
+
 <body>
-    <h1>Tableau</h1>
-    <div class='tableauPlaceholder' id='viz1776193530095' style='position: relative'>
-        <noscript>
-            <a href='#'>
-                <img alt='Dashboard 1 ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;LL&#47;LLM_17207785868130&#47;Dashboard1&#47;1_rss.png' style='border: none' />
-            </a>
-        </noscript>
-        <object class='tableauViz'  style='display:none;'>
-            <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> 
-            <param name='embed_code_version' value='3' /> 
-            <param name='site_root' value='' />
-            <param name='name' value='LLM_17207785868130&#47;Dashboard1' />
-            <param name='tabs' value='no' />
-            <param name='toolbar' value='yes' />
-            <param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;LL&#47;LLM_17207785868130&#47;Dashboard1&#47;1.png' /> 
-            <param name='animate_transition' value='yes' />
-            <param name='display_static_image' value='yes' />
-            <param name='display_spinner' value='yes' />
-            <param name='display_overlay' value='yes' />
-            <param name='display_count' value='yes' />
-            <param name='language' value='en-US' />
-        </object>
-    </div>                
-    <script type='text/javascript'>                    
-        var divElement = document.getElementById('viz1776193530095');                    
-        var vizElement = divElement.getElementsByTagName('object')[0];                    
-        if ( divElement.offsetWidth > 800 ) { vizElement.style.width='1366px';vizElement.style.height='795px';} 
-        else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='1366px';vizElement.style.height='795px';} 
-        else { vizElement.style.width='100%';vizElement.style.height='727px';}                     
-        var scriptElement = document.createElement('script');                    
-        scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    
-        vizElement.parentNode.insertBefore(scriptElement, vizElement);                
-    </script>
+    <div class="common header">
+        <h1>The Evolution of Super Mario</h1>
+    </div>
+    <div class="common left">
+        <h3>On This Page</h3>
+        <a href="#start">The Start</a>
+        <a href="#three-d">3D Graphics</a>
+        <a href="#today">Franchise Today</a>
+        <a href="#video">Video</a>
+        <a href="#tableau">Tableau</a>
+    </div>
+    <div class="common right">
+        <h3>Other Pages</h3>
+        <a href="index.html">Home</a>
+        <a href="resume.html">Resume</a>
+        <a href="minesweeper.html">WebApp</a>
+        <a href="#">Scratch</a>
+    </div>
+    <div class="common main">
+        <div class="game" id="start">
+            <div class="facts">
+                <h1>The Start (1980s)</h1>
+                <div class="list">
+                    <ul>
+                        <li>Mario first appeared in Donkey Kong, for the arcade, in 1981. He was known as "jumpman"</li>
+                        <li>Super Mario Bros, the first game of the franchise, released for arcade in 1983</li>
+                        <li>Super Mario Bros released on NES in 1985</li>
+                        <li>Today, the original Super Mario Bros is the 9th best selling video game of all time</li>
+                    </ul>
+                </div>
+            </div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/0/03/Super_Mario_Bros._box.png" alt="Super Mario Bros NES Cover">
+        </div>
+        <div class="game" id="three-d">
+            <img src="https://upload.wikimedia.org/wikipedia/en/e/e9/Super_Mario_64.png" alt="Super Mario 64 Cover">
+            <div class="facts">
+                <h1>3D Graphics (1990s)</h1>
+                <div class="list">
+                    <ul>
+                        <li>Super Mario 64 released in 1996 and was the first mario game to introduce 3D graphics</li>
+                        <li>Super Mario 64 is the first main stream mario game to feature Charles Martinet as the voice of Mario</li>
+                        <li>Other 3D Mario Games:
+                            <ol>
+                                <li>Super Mario Sunshine (2002)</li>
+                                <li>Super Mario Galaxy (2007)</li>
+                                <li>Super Mario Galaxy 2 (2010)</li>
+                                <li>Super Mario 3D Land (2011)</li>
+                                <li>Super Mario 3D World (2013)</li>
+                                <li>Super Mario Odyssey (2017)</li>
+                            </ol>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="game" id="today">
+            <img src="https://upload.wikimedia.org/wikipedia/en/d/d6/Mario_Kart_Wii.png" alt="Mario Kart">
+            <div class="facts">
+                <h1>The Franchise Today</h1>
+                <div class="list">
+                    <ul>
+                        <li>More than 600 million copies of Mario games have been sold</li>
+                        <li>Estimated revenue above $36 billion</li>
+                        <li>The best-selling video game franchise of all time</li>
+                        <li>It is also the 9th highest-grossing media franchise of all time</li>
+                        <li>Other Mario games include:
+                            <ul>
+                                <li>Paper Mario</li>
+                                <li>Mario Kart</li>
+                                <li>Super Smash Bros</li>
+                                <li>Mario Party</li>
+                                <li>Mario & Luigi</li>
+                                <li>Dr. Mario</li>
+                                <li>etc.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f3/SSBB_Cover.jpg/250px-SSBB_Cover.jpg" alt="Super Smash Bros">
+        </div>
+        <h1 id="video">An overcomplicated Super Mario 64 Video: </h1>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/kpk2tdsPh0A?si=wpn_U7iRtR8e3FeJ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <h1 id="tableau">Super Mario Bros Speedrun Progression Tableau:</h1>
+        <div class='tableauPlaceholder' id='viz1776737455485' style='position: relative'><noscript><a href='#'><img
+                        alt='Super Mario Bros WR Progression '
+                        src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Su&#47;SuperMarioBrosWRProgression&#47;SuperMarioBrosWRProgression&#47;1_rss.png'
+                        style='border: none' /></a></noscript><object class='tableauViz' style='display:none;'>
+                <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+                <param name='embed_code_version' value='3' />
+                <param name='site_root' value='' />
+                <param name='name' value='SuperMarioBrosWRProgression&#47;SuperMarioBrosWRProgression' />
+                <param name='tabs' value='no' />
+                <param name='toolbar' value='yes' />
+                <param name='static_image'
+                    value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Su&#47;SuperMarioBrosWRProgression&#47;SuperMarioBrosWRProgression&#47;1.png' />
+                <param name='animate_transition' value='yes' />
+                <param name='display_static_image' value='yes' />
+                <param name='display_spinner' value='yes' />
+                <param name='display_overlay' value='yes' />
+                <param name='display_count' value='yes' />
+                <param name='language' value='en-US' />
+            </object></div>
+        <script
+            type='text/javascript'>                    
+            var divElement = document.getElementById('viz1776737455485'); 
+            var vizElement = divElement.getElementsByTagName('object')[0]; 
+            vizElement.style.width = '1100px'; vizElement.style.height = '1127px'; 
+            var scriptElement = document.createElement('script'); 
+            scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js'; 
+            vizElement.parentNode.insertBefore(scriptElement, vizElement);                
+        </script>
+    </div>
 </body>
+
 </html>

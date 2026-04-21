@@ -1,0 +1,39 @@
+/* Changes:
+Adds borders on images on index page
+Removes footer from index.html and resume.html
+changes font size on index.html
+removes underline from links in the paragraphs (index.html) */
+
+section .rounded-circle {
+    display: block;
+    width: 450px;
+    height: 450px;
+    margin: 0 auto;
+    border: 8px solid transparent;
+    border-radius: 50%;
+    object-fit: cover;
+    background:
+        linear-gradient(#ffffff, #ffffff) padding-box,
+        linear-gradient(0deg, #ff6a00 0%, #ee0979 100%) border-box;
+}
+
+section .display-4 {
+    font-size: 3.25rem;
+}
+
+section p {
+    font-size: 1.2rem;
+    line-height: 1.7;
+}
+
+section p a {
+    text-decoration: none;
+}
+
+.page-footer {
+    background-color: #ffffff;
+}
+
+.resume-page main {
+    padding-top: 5rem;
+}
