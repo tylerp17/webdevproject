@@ -359,6 +359,25 @@
     padding-bottom: 12px;
   }
 
+  /* Mute button */
+  .btn-mute {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.1em;
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 50;
+  }
+  .btn-mute:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
+  .btn-mute.muted { border-color: var(--accent2); color: var(--accent2); }
+
   /* Shape preview icons */
   .shape-btn-inner {
     display: flex;
@@ -379,9 +398,11 @@
 </head>
 <body>
 
+<button class="btn-mute" id="btn-mute" onclick="toggleMute()">🔊 SFX</button>
+
 <header>
   <h1>◈ MINESWEEPER ◈</h1>
-  <p>SHAPESHIFTER EDITION</p>
+  <p>SHAPESHIFTER EDITION // RIGHT-CLICK TO FLAG</p>
 </header>
 
 <div class="controls">
@@ -483,7 +504,6 @@
     <div class="overlay-title" id="overlay-title">WIN</div>
     <div class="overlay-sub" id="overlay-sub">Sector cleared.</div>
     <button class="btn-start" onclick="startGame()">▶ PLAY AGAIN</button>
-    <button class="btn-home" onclick="window.location.href='index.html'">← Back to Home</button>
   </div>
 </div>
 
@@ -790,6 +810,7 @@ function handleFlag(r,c){
   if(cell.revealed) return;
   cell.flagged = !cell.flagged;
   flagCount += cell.flagged ? 1 : -1;
+  cell.flagged ? sfxFlag() : sfxUnflag();
   updateCell(r,c);
   updateHUD();
 }
@@ -797,6 +818,8 @@ function handleFlag(r,c){
 function flood(r,c){
   const stack = [[r,c]];
   const visited = new Set();
+  let emptyCells = 0;
+  let numberedCells = [];
   while(stack.length){
     const [cr,cc] = stack.pop();
     const k = key(cr,cc);
@@ -806,13 +829,32 @@ function flood(r,c){
     if(!cell.active||cell.revealed||cell.flagged||cell.mine) continue;
     cell.revealed=true;
     updateCell(cr,cc);
-    if(cell.count===0) neighbors(cr,cc).forEach(([nr,nc])=>stack.push([nr,nc]));
+    if(cell.count===0){
+      emptyCells++;
+      neighbors(cr,cc).forEach(([nr,nc])=>stack.push([nr,nc]));
+    } else {
+      numberedCells.push(cell.count);
+    }
+  }
+  // Play sounds
+  if(emptyCells > 1){
+    sfxFlood(emptyCells + numberedCells.length);
+    // Play the highest number tone after flood settles
+    if(numberedCells.length){
+      const maxN = Math.max(...numberedCells);
+      setTimeout(()=> sfxNumber(maxN), Math.min(emptyCells,12)*28 + 60);
+    }
+  } else if(numberedCells.length){
+    sfxNumber(numberedCells[0]);
+  } else {
+    sfxReveal();
   }
 }
 
 function revealMine(r,c){
   gameOver=true;
   clearInterval(timerInterval);
+  sfxExplosion();
   grid[r][c].revealed=true;
   const el=getCellEl(r,c);
   el.className='cell mine-hit';
@@ -840,6 +882,7 @@ function checkWin(){
   if(unrevealed===0){
     gameOver=true;
     clearInterval(timerInterval);
+    sfxVictory();
     showOverlay(true);
   }
 }
@@ -872,6 +915,142 @@ function startTimer(){
     seconds++;
     document.getElementById('timer-val').textContent=String(seconds).padStart(2,'0');
   },1000);
+}
+
+// ── Audio Engine ───────────────────────────────────────────────────────────
+let audioCtx = null;
+let muted = false;
+
+function getCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function toggleMute(){
+  muted = !muted;
+  const btn = document.getElementById('btn-mute');
+  btn.textContent = muted ? '🔇 SFX' : '🔊 SFX';
+  btn.classList.toggle('muted', muted);
+}
+
+// Utility: create a gain node that auto-disconnects
+function makeGain(ctx, val){
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(val, ctx.currentTime);
+  g.connect(ctx.destination);
+  return g;
+}
+
+// Short sine/square blip
+function playTone(freq, type, duration, volume, attack=0.005, decay=0.05){
+  if(muted) return;
+  const ctx = getCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+  gain.gain.setValueAtTime(0, ctx.currentTime);
+  gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + attack);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + duration + 0.01);
+}
+
+// White-noise burst
+function playNoise(duration, volume, highpass=200){
+  if(muted) return;
+  const ctx = getCtx();
+  const bufSize = ctx.sampleRate * duration;
+  const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for(let i=0;i<bufSize;i++) data[i] = Math.random()*2-1;
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'highpass';
+  filter.frequency.value = highpass;
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(volume, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+  src.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+  src.start();
+  src.stop(ctx.currentTime + duration);
+}
+
+// ── Sound Events ───────────────────────────────────────────────────────────
+
+// Soft click when revealing an empty cell
+function sfxReveal(){
+  playTone(420, 'sine', 0.08, 0.18, 0.003, 0.07);
+}
+
+// Slightly pitched tone per number (1=low, 8=high)
+function sfxNumber(n){
+  const freqs = [0, 280, 320, 380, 440, 520, 620, 740, 880];
+  playTone(freqs[n] || 300, 'triangle', 0.12, 0.22, 0.004, 0.10);
+}
+
+// Flood reveal: cascading soft ticks
+function sfxFlood(cellCount){
+  if(muted) return;
+  const ticks = Math.min(cellCount, 12);
+  for(let i=0;i<ticks;i++){
+    setTimeout(()=> playTone(380 + i*18, 'sine', 0.06, 0.12, 0.002, 0.05), i * 28);
+  }
+}
+
+// Flag planted
+function sfxFlag(){
+  playTone(600, 'square', 0.05, 0.15, 0.003, 0.04);
+  setTimeout(()=> playTone(900, 'square', 0.05, 0.10, 0.003, 0.04), 55);
+}
+
+// Flag removed
+function sfxUnflag(){
+  playTone(900, 'square', 0.05, 0.12, 0.003, 0.04);
+  setTimeout(()=> playTone(600, 'square', 0.05, 0.08, 0.003, 0.04), 55);
+}
+
+// Explosion
+function sfxExplosion(){
+  if(muted) return;
+  const ctx = getCtx();
+  // Low boom
+  playNoise(1.2, 0.5, 30);
+  // Sub thud
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(90, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.5);
+  gain.gain.setValueAtTime(0.6, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.65);
+  // High crack
+  setTimeout(()=> playNoise(0.08, 0.3, 2000), 20);
+}
+
+// Victory fanfare — rising arpeggio
+function sfxVictory(){
+  if(muted) return;
+  const notes = [330, 392, 494, 587, 740, 880];
+  notes.forEach((freq, i)=>{
+    setTimeout(()=>{
+      playTone(freq, 'triangle', 0.35, 0.28, 0.01, 0.30);
+      if(i === notes.length-1){
+        setTimeout(()=> playTone(880, 'sine', 0.6, 0.3, 0.01, 0.55), 60);
+        setTimeout(()=> playTone(1174, 'sine', 0.5, 0.22, 0.01, 0.45), 120);
+      }
+    }, i * 90);
+  });
 }
 
 // ── Boot ───────────────────────────────────────────────────────────────────
