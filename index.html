@@ -1,107 +1,347 @@
+<!--
+  WELCOME! A quick guide to this file.
+
+  HTML (HyperText Markup Language) is the language that describes the
+  STRUCTURE of a web page: which headings, buttons, and text boxes exist.
+  Think of it as the skeleton of the page.
+
+  HTML is written with "tags". A tag is a word inside angle brackets, like
+  <button>. Most tags come in pairs: an opening tag <button> and a closing
+  tag </button>. The opening tag, the closing tag, and everything between
+  them together are called an "element".
+
+  An "attribute" is extra information written inside an opening tag, like
+  class="btn" or id="board". It looks like name="value".
+
+  This website is made of three files that work together:
+    - index.html (this file) = the structure (skeleton)
+    - style.css              = the looks (colors, sizes, spacing)
+    - script.js              = the behavior (the game rules and logic)
+
+  Everything you are reading right now is a "comment": a note for humans
+  that the browser completely ignores. In HTML, a comment starts with
+  the characters that begin this note and ends with the characters that
+  end it.
+-->
+
+<!--
+  This first line tells the browser "this file is modern HTML (version 5)".
+  Without it, some browsers behave strangely and show the page in an old
+  compatibility mode.
+-->
 <!DOCTYPE html>
+
+<!--
+  <html> is the container for the whole page. The attribute lang="en" says
+  the page is written in English, which helps screen readers (software that
+  reads pages aloud to people who can't see well) pronounce words correctly.
+-->
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>WebDev Project - Home</title>
-        <!-- Font Awesome icons (free version)-->
-        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-        <!-- Google fonts-->
-        <link href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet" />
-        <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="css/styles.css" rel="stylesheet" />
-        <link href="css/overwrite.css" rel="stylesheet" />
-    </head>
-    <body id="page-top">
-        <!-- Navigation-->
-        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
-            <div class="container px-5">
-                <a class="navbar-brand" href="#page-top">WebDev Project - Home</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                <div class="collapse navbar-collapse" id="navbarResponsive">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
-                        <li class="nav-item"><a class="nav-link" href="minesweeper/minesweeper.html">WebApp</a></li>
-                        <li class="nav-item"><a class="nav-link" href="scratch.html">Scratch</a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-        <!-- Header-->
-        <header class="masthead text-center text-white">
-            <div class="masthead-content">
-                <div class="container px-5">
-                    <h1 class="masthead-heading mb-0">Tyler Pugmire</h1>
-                    <h2 class="masthead-subheading mb-0">Coder ~ Gamer ~ Explorer</h2>
-                    <a class="btn btn-primary btn-xl rounded-pill mt-5" href="resume.html">View Resume</a>
-                </div>
-            </div>
-            <div class="bg-circle-1 bg-circle"></div>
-            <div class="bg-circle-2 bg-circle"></div>
-            <div class="bg-circle-3 bg-circle"></div>
-            <div class="bg-circle-4 bg-circle"></div>
-        </header>
-        <!-- Content section 1-->
-        <section id="scroll">
-            <div class="container px-5">
-                <div class="row gx-5 align-items-center">
-                    <div class="col-lg-6 order-lg-2">
-                        <div class="p-5"><img class="img-fluid rounded-circle" src="assets/tyler.jpeg" alt="Tyler Pugmire" /></div>
-                    </div>
-                    <div class="col-lg-6 order-lg-1">
-                        <div class="p-5">
-                            <h2 class="display-4">Coder</h2>
-                            <p>I'm only a freshman at BYU, but I already know I want to go into the Computer Science Field. I love technology, and have learned several different programming languages such as Python, C++, and now, HTML and CSS! With the help of Claude AI, I coded a Minesweeper Web Game. Check it out <a href="minesweeper.html">here!</a></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Content section 2-->
-        <section>
-            <div class="container px-5">
-                <div class="row gx-5 align-items-center">
-                    <div class="col-lg-6">
-                        <div class="p-5"><img class="img-fluid rounded-circle" src="https://gcp-na-images.contentstack.com/v3/assets/bltea6093859af6183b/blt22918d4f3e11aeef/6988621cf887dc8393e92310/mario-bros-evolution09.jpg?branch=production" alt="Super Mario Bros" /></div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="p-5">
-                            <h2 class="display-4">Gamer</h2>
-                            <p>In my spare time I enjoy playing games. Yes, of course, video games, but also board games and card games! Recently, I've been playing Nintendo games like Super Mario Bros and Tetris! For some fun facts about Super Mario, <a href="scratch.html">click here!</a></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Content section 3-->
-        <section>
-            <div class="container px-5">
-                <div class="row gx-5 align-items-center">
-                    <div class="col-lg-6 order-lg-2">
-                        <div class="p-5"><img class="img-fluid rounded-circle" src="assets/mexico.jpeg" alt="The Beach in Mexico" /></div>
-                    </div>
-                    <div class="col-lg-6 order-lg-1">
-                        <div class="p-5">
-                            <h2 class="display-4">Explorer</h2>
-                            <p>Aside from playing games, I really enjoy traveling. I have visited many different places like Tahiti, Cameroon, The Carribean, and most recently, Mexico!</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Footer-->
-        <footer class="page-footer py-5">
-            <div class="container px-5 text-center">
-                <a class="btn btn-primary btn-xl rounded-pill" href="#page-top">Back to Top</a>
-            </div>
-        </footer>
-        <!-- Bootstrap core JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="js/scripts.js"></script>
-    </body>
+
+<!--
+  <head> holds information ABOUT the page that is not shown directly on the
+  page itself, such as the title, the character set, and links to other files.
+-->
+<head>
+
+<!--
+  A "character set" is the list of letters and symbols the browser can
+  understand. UTF-8 is a popular one that includes emoji and symbols like
+  the ◈ and ⚑ used in this game.
+-->
+<meta charset="UTF-8">
+
+<!--
+  The "viewport" is the visible area of the page on a screen. This line
+  tells phones to fit the page to the phone's width instead of shrinking a
+  giant desktop-sized page down to a tiny size. This is what makes the game
+  usable on a phone.
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- The title is the text shown on the browser tab. -->
+<title>MINESWEEPER — SHAPESHIFTER EDITION</title>
+
+<!--
+  This <link> loads two custom fonts (Share Tech Mono and Orbitron) from
+  Google Fonts, a free font library on the internet. Without it, the page
+  would use the plain default font. rel="stylesheet" means "this linked file
+  contains styling instructions".
+-->
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+<!--
+  This <link> connects our own style.css file. CSS (Cascading Style Sheets)
+  is the language that controls how elements LOOK: colors, sizes, spacing.
+  "href" is the file's location. Because it is just "style.css" with no
+  folder, the browser looks for it in the same folder as this page.
+-->
+<link rel="stylesheet" href="style.css">
+</head>
+
+<!--
+  <body> holds everything the visitor actually SEES on the page.
+  Elements are listed top to bottom in roughly the order they appear.
+-->
+<body>
+
+<!--
+  The sound on/off button, pinned to the top-right corner of the screen
+  (the pinning is done in style.css).
+
+  - class="btn-mute": a "class" is a label that CSS uses to find elements
+    and style them. Many elements can share one class.
+  - id="btn-mute": an "id" is a unique name for ONE element, so JavaScript
+    can find this exact button later.
+  - onclick="toggleMute()": "onclick" means "when this is clicked, run the
+    function named toggleMute". A function is a named set of instructions,
+    and this one is defined in script.js.
+-->
+<button class="btn-mute" id="btn-mute" onclick="toggleMute()">🔊 SFX</button>
+
+<!--
+  <header> is the top section of the page, holding the title.
+  <h1> is the main heading (the biggest, most important one).
+  <p> is a paragraph of text.
+-->
+<header>
+  <h1>◈ MINESWEEPER ◈</h1>
+  <p>SHAPESHIFTER EDITION // RIGHT-CLICK TO FLAG</p>
+</header>
+
+<!--
+  The settings area: pick a map shape, pick a difficulty, start a game.
+  A <div> is a generic invisible box used to group other elements together
+  so they can be laid out or styled as one unit. Dividing a page into
+  groups with divs is very common.
+-->
+<div class="controls">
+
+  <!-- GROUP 1: the shape picker -->
+  <div class="control-group">
+    <!-- A <label> is a caption that describes what the controls next to it do. -->
+    <label>Map Shape</label>
+
+    <!-- This div holds all the shape buttons so they can sit in a row together. -->
+    <div class="shape-buttons" id="shape-buttons">
+
+      <!--
+        SQUARE button.
+        - class="btn active": this element has TWO classes. "btn" gives it the
+          button look, and "active" makes it look highlighted (selected).
+          Square starts selected because the game starts with a square map.
+        - data-shape="square": any attribute starting with "data-" is a
+          custom label you can invent to store your own information on an
+          element. JavaScript reads it later to learn which shape this button
+          stands for.
+        - onclick="selectShape(this)": run the selectShape function when
+          clicked. The word "this" means "the button that was just clicked",
+          which is passed into the function so it knows which one it was.
+      -->
+      <button class="btn active" data-shape="square" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <!--
+            This small picture is an SVG (Scalable Vector Graphics): an image
+            drawn with math-like instructions instead of pixels, so it stays
+            sharp at any size. Here it is a tiny outline of the shape.
+            - viewBox="0 0 28 20" sets up an imaginary drawing area 28 units
+              wide and 20 tall. All the coordinates below use that area.
+            - <rect> draws a rectangle (x, y = top-left corner).
+            - fill="none" means "don't color the inside".
+            - stroke="currentColor" means "draw the outline using the same
+              color as the surrounding text", so it changes color along with
+              the button when you hover over it.
+            - stroke-width is how thick the outline is.
+          -->
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><rect x="2" y="2" width="24" height="16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+          SQUARE
+        </div>
+      </button>
+
+      <!--
+        DIAMOND button. Same pattern as above, just a different shape name.
+        A <polygon> draws a shape by connecting a list of points with
+        straight lines; each pair of numbers is an x,y point.
+      -->
+      <button class="btn" data-shape="diamond" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><polygon points="14,2 26,10 14,18 2,10" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+          DIAMOND
+        </div>
+      </button>
+
+      <!-- CROSS button: its preview is two overlapping rectangles forming a plus sign. -->
+      <button class="btn" data-shape="cross" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><rect x="10" y="2" width="8" height="16" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="6" width="24" height="8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
+          CROSS
+        </div>
+      </button>
+
+      <!--
+        RING button: a rectangle with a faded filled box inside it.
+        opacity="0.3" means 30% visible, so it looks see-through.
+      -->
+      <button class="btn" data-shape="ring" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><rect x="2" y="2" width="24" height="16" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="6" width="12" height="8" fill="currentColor" opacity="0.3"/></svg></div>
+          RING
+        </div>
+      </button>
+
+      <!-- TRIANGLE button: a polygon with three points. -->
+      <button class="btn" data-shape="triangle" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><polygon points="14,2 26,18 2,18" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+          TRIANGLE
+        </div>
+      </button>
+
+      <!-- HEXAGON button: a polygon with six points. -->
+      <button class="btn" data-shape="hexagon" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><polygon points="14,2 24,7 24,13 14,18 4,13 4,7" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+          HEXAGON
+        </div>
+      </button>
+
+      <!--
+        SPIRAL button: a <path> draws a curved line using a compact set of
+        drawing commands (the letters like M and a mean "move" and "arc").
+      -->
+      <button class="btn" data-shape="spiral" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><path d="M14,10 m-8,0 a8,6 0 1,1 16,0 a6,4.5 0 1,1 -12,0 a4,3 0 1,1 8,0" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
+          SPIRAL
+        </div>
+      </button>
+
+      <!--
+        STAR+ button. Its data-shape value is "plus_ring", which is the
+        name the JavaScript uses; "STAR+" is just the label people read.
+        The preview is two <line> elements (a plus sign) and a <circle>.
+      -->
+      <button class="btn" data-shape="plus_ring" onclick="selectShape(this)">
+        <div class="shape-btn-inner">
+          <div class="shape-preview"><svg viewBox="0 0 28 20"><line x1="14" y1="2" x2="14" y2="18" stroke="currentColor" stroke-width="2"/><line x1="2" y1="10" x2="26" y2="10" stroke="currentColor" stroke-width="2"/><circle cx="14" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
+          STAR+
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!--
+    GROUP 2: the difficulty picker. Same idea as the shapes, but each button
+    stores a data-diff value (easy, medium, or hard). Harder difficulties
+    make a bigger board with more mines.
+  -->
+  <div class="control-group">
+    <label>Difficulty</label>
+    <div class="diff-buttons" id="diff-buttons">
+      <button class="btn active" data-diff="easy" onclick="selectDiff(this)">EASY</button>
+      <button class="btn" data-diff="medium" onclick="selectDiff(this)">MEDIUM</button>
+      <button class="btn" data-diff="hard" onclick="selectDiff(this)">HARD</button>
+    </div>
+  </div>
+
+  <!--
+    GROUP 3: the action buttons.
+    The style="..." attribute applies CSS directly to this one element
+    (here it aligns the contents to the bottom). This is called an "inline
+    style". Most of our styling lives in style.css instead, which is neater.
+  -->
+  <div class="control-group" style="justify-content: flex-end">
+    <!--
+      &nbsp; is an "HTML entity": a special code for a character that is hard
+      to type. This one means "non-breaking space". The empty-looking label
+      keeps this group lined up vertically with the other two groups.
+    -->
+    <label>&nbsp;</label>
+    <div class="diff-buttons">
+      <!-- Runs startGame() to begin a fresh game. -->
+      <button class="btn-start" onclick="startGame()">▶ NEW GAME</button>
+
+      <!--
+        This button sends the visitor to another page.
+        window.location.href is the browser's current page address;
+        assigning a new value to it makes the browser go there.
+      -->
+      <button class="btn-home" onclick="window.location.href='index.html'">← Back to Home</button>
+    </div>
+  </div>
+</div>
+
+<!--
+  HUD stands for "heads-up display": the row of live numbers shown above the
+  board. Each hud-item holds a small label and a value. The empty-looking
+  values like "00" are placeholders; JavaScript replaces them using the id
+  names (mines-val, flags-val, timer-val, best-val).
+  A <span> is like a div but for small pieces of text inside a line.
+-->
+<div class="hud">
+  <!-- How many mines are hidden on the board. -->
+  <div class="hud-item">
+    <span class="hud-label">⚑ MINES</span>
+    <span class="hud-value" id="mines-val">00</span>
+  </div>
+  <!-- How many flags you have placed so far. -->
+  <div class="hud-item">
+    <span class="hud-label">◈ FLAGS</span>
+    <span class="hud-value" id="flags-val">00</span>
+  </div>
+  <!-- Seconds elapsed since your first click. -->
+  <div class="hud-item">
+    <span class="hud-label">◷ TIME</span>
+    <span class="hud-value" id="timer-val">00</span>
+  </div>
+  <!-- NEW: shows your saved best time for the selected shape + difficulty -->
+  <!--
+    The best time is remembered in "localStorage", a small storage area
+    inside the browser that keeps data even after you close the page. It
+    shows "--" until you win at least once on this shape and difficulty.
+  -->
+  <div class="hud-item">
+    <span class="hud-label">★ BEST</span>
+    <span class="hud-value" id="best-val">--</span>
+  </div>
+</div>
+
+<!-- A small instruction line telling players how to place a flag. -->
+<p class="right-click-hint">[ RIGHT-CLICK OR LONG-PRESS TO PLANT FLAG ]</p>
+
+<!--
+  The game area. The <div id="board"> below starts out EMPTY on purpose.
+  JavaScript builds all the little square cells and puts them inside it,
+  because the number and arrangement of cells changes with each shape.
+-->
+<div class="game-area">
+  <div id="board"></div>
+</div>
+
+<!--
+  The pop-up message shown when you win or lose. It starts hidden (style.css
+  hides it) and JavaScript makes it visible when the game ends. It covers
+  the whole screen with a dark background, with a box in the middle.
+  The title and subtitle text get filled in by JavaScript depending on
+  whether you won or lost. "PLAY AGAIN" starts a new game.
+-->
+<div id="overlay">
+  <div class="overlay-box" id="overlay-box">
+    <div class="overlay-title" id="overlay-title">WIN</div>
+    <div class="overlay-sub" id="overlay-sub">Sector cleared.</div>
+    <button class="btn-start" onclick="startGame()">▶ PLAY AGAIN</button>
+  </div>
+</div>
+
+<!--
+  JavaScript is the programming language that makes the page INTERACTIVE:
+  it reacts to clicks, runs the timer, and applies the game rules.
+
+  This line loads our script.js file. It is placed at the very END of the
+  body on purpose: the browser reads the page top to bottom, and the script
+  needs all the elements above (the board, buttons, and numbers) to exist
+  before it tries to find and change them.
+-->
+<script src="script.js"></script>
+</body>
 </html>

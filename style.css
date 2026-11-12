@@ -1,0 +1,603 @@
+/*
+  WELCOME TO style.css!
+
+  CSS (Cascading Style Sheets) controls how the page LOOKS: colors, sizes,
+  spacing, fonts, and simple animations. index.html builds the skeleton of
+  the page, and this file decorates it.
+
+  A CSS "rule" has this shape:
+
+      selector {
+        property: value;
+      }
+
+  - A "selector" picks WHICH elements to style. A name starting with a dot
+    (like .btn) picks every element that has that class. A name starting
+    with a # (like #board) picks the one element with that id. A plain word
+    (like body) picks every element of that tag type.
+  - A "property" is the thing you want to change (like color).
+  - A "value" is what you want to change it to (like red).
+  - Each property line ends with a semicolon (;).
+
+  Everything between a slash-star and a star-slash, like this note, is a
+  "comment": a note for humans that the browser ignores.
+*/
+
+
+/*
+  ── COLOR PALETTE AND SHARED VALUES ──────────────────────────────────────
+  :root means "the very top of the page". Anything defined here is available
+  everywhere else. Names that start with two dashes (like --bg) are "CSS
+  variables": a nickname for a value so you can write it once and reuse it
+  many times. To use a variable you write var(--name). If you ever want to
+  change the main accent color, you change it in just ONE place below.
+*/
+:root {
+  --bg: #0a0e1a;               /* page background: very dark navy. Colors like #0a0e1a are "hex codes": a way to write a color using red, green, and blue amounts. */
+  --panel: #0d1220;            /* slightly lighter dark color for boxes and buttons */
+  --border: #1a2540;           /* color of thin outlines */
+  --accent: #00f5c4;           /* main highlight color: bright teal-green */
+  --accent2: #ff4b6e;          /* second highlight color: pink-red (used for mines and losing) */
+  --accent3: #f5c400;          /* third highlight color: yellow (used for the timer) */
+  --text: #c8d8f0;             /* normal text color: light blue-gray */
+  --text-dim: #4a6080;         /* faded text color for less important text */
+  --cell-hidden: #1a2540;      /* color of a board square you haven't opened yet */
+  --cell-hover: #243050;       /* color of an unopened square when the mouse is on it */
+  --cell-revealed: #0d1220;    /* color of a square you have opened */
+  --cell-border-light: #2a3a60;/* lighter edge color, used on the top and left of unopened squares to look raised */
+  --cell-border-dark: #080c18; /* darker edge color, used on the bottom and right to complete the raised look */
+  --mine-color: #ff4b6e;       /* color for mines */
+  --flag-color: #f5c400;       /* color for flags */
+  --glow: 0 0 12px rgba(0,245,196,0.4);   /* a soft teal glow. This is a "box-shadow" value: horizontal offset, vertical offset, blur size, then color. rgba(...) is a color with a transparency amount (the last number: 0 is invisible, 1 is solid). */
+  --glow2: 0 0 12px rgba(255,75,110,0.4); /* the same glow, but in pink-red */
+}
+
+
+/*
+  ── RESET ────────────────────────────────────────────────────────────────
+  The * selector means "every element". Browsers add their own default
+  spacing to many elements, which can make layouts unpredictable, so this
+  rule removes it so we start from a clean slate.
+  - margin: space OUTSIDE an element's edge.
+  - padding: space INSIDE an element, between its edge and its content.
+  - box-sizing: border-box: makes an element's set width/height include its
+    padding and border, which makes sizes easier to predict.
+*/
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+
+/*
+  ── PAGE BASICS ──────────────────────────────────────────────────────────
+  Styles for <body>, the whole visible page.
+  - font-family: which font to use; the last word (monospace) is a backup
+    if the first font fails to load.
+  - min-height: 100vh: "vh" means "viewport height", so 100vh means at
+    least as tall as the browser window.
+  - display: flex: turns on "flexbox", a layout tool that arranges children
+    in a row or column and makes centering easy.
+  - flex-direction: column: stack the children top to bottom.
+  - align-items: center: center the children horizontally (because the
+    direction is a column).
+  - overflow-x: hidden: hide anything that sticks out sideways so no
+    horizontal scrollbar appears.
+*/
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+/*
+  Scanline overlay: a retro "old TV screen" effect.
+  body::before is a "pseudo-element": a decoration the browser creates for
+  you, without needing any extra HTML. It is placed before the body's
+  content. We use it to draw thin dark horizontal stripes over the page.
+  - content: '' is required, or the pseudo-element won't appear.
+  - position: fixed: pins it to the window so it doesn't scroll away.
+  - inset: 0: stretches it to cover all four edges of the window.
+  - repeating-linear-gradient: repeats a pattern of colors (here: clear,
+    then a faint dark stripe, over and over).
+  - pointer-events: none: lets mouse clicks pass straight through it, so it
+    doesn't block you from clicking the game underneath.
+  - z-index: controls stacking order. A bigger number sits on top of
+    smaller ones.
+*/
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+
+/*
+  ── HEADER (the title area at the top) ───────────────────────────────────
+  - width: 100%: stretch across the full page width.
+  - text-align: center: center the text.
+  - border-bottom: draws a thin line under the header.
+*/
+header {
+  width: 100%;
+  text-align: center;
+  padding: 24px 16px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/*
+  The big title. "header h1" means "an h1 that is inside a header".
+  - font-size: clamp(min, ideal, max): the size grows and shrinks with the
+    window width but never goes below 1.4rem or above 2.4rem. "rem" is a
+    unit based on the page's default text size, and "vw" is 1 percent of the
+    window width.
+  - letter-spacing: space between letters.
+  - text-shadow: a glow behind the letters (two layers here).
+*/
+header h1 {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.4rem, 4vw, 2.4rem);
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  text-shadow: 0 0 20px rgba(0,245,196,0.6), 0 0 40px rgba(0,245,196,0.2);
+}
+
+/* The small subtitle line under the title. */
+header p {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  margin-top: 4px;
+}
+
+
+/*
+  ── CONTROLS (shape picker, difficulty picker, start button) ────────────
+  - flex-wrap: wrap: if the groups don't fit in one row, let them drop to
+    the next line (important for narrow phone screens).
+  - gap: space between the children.
+  - justify-content: center: center the children along the row.
+  - max-width: don't grow wider than 900px, even on a huge monitor.
+*/
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  padding: 20px 16px;
+  max-width: 900px;
+  width: 100%;
+}
+
+/* One group = a small label sitting on top of its buttons. */
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* The little caption words like "MAP SHAPE". text-transform: uppercase turns the text into ALL CAPS. */
+.control-group label {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* Rows that hold buttons. The comma means "apply this to both of these classes". */
+.shape-buttons, .diff-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+
+/*
+  ── BUTTONS ──────────────────────────────────────────────────────────────
+  .btn is the standard button look used by the shape and difficulty buttons.
+  - cursor: pointer: turns the mouse arrow into a pointing hand.
+  - transition: all 0.15s: when a property changes (like the color on
+    hover), animate smoothly over 0.15 seconds instead of snapping.
+*/
+.btn {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+
+/*
+  :hover is a "pseudo-class": it applies only while a certain state is true.
+  Here, the state is "the mouse is currently over this element".
+*/
+.btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: var(--glow);
+}
+
+/*
+  .btn.active (no space) means "an element with BOTH the btn class and the
+  active class". JavaScript adds and removes "active" to show which shape
+  or difficulty is currently selected.
+*/
+.btn.active {
+  background: rgba(0,245,196,0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: var(--glow);
+}
+
+/*
+  The big bright NEW GAME / PLAY AGAIN button.
+  - transform: translateY(-1px) (used in the hover rule) nudges it 1 pixel
+    upward so the button seems to lift when you point at it.
+  - align-self: flex-end: inside its flex container, push this item to the
+    bottom edge.
+*/
+.btn-start {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  padding: 10px 28px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  align-self: flex-end;
+}
+
+.btn-start:hover {
+  box-shadow: 0 0 20px rgba(0,245,196,0.6);
+  transform: translateY(-1px);
+}
+
+/* The "Back to Home" button: an outlined (see-through) version of the start button. */
+.btn-home {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+
+.btn-home:hover {
+  background: rgba(0,245,196,0.08);
+  box-shadow: var(--glow);
+  transform: translateY(-1px);
+}
+
+
+/*
+  ── HUD (the row of live numbers: mines, flags, time, best) ─────────────
+  HUD = "heads-up display". This lays the items out in a centered row.
+  align-items: center in a row layout centers things vertically.
+*/
+.hud {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 16px 16px;
+  font-family: 'Orbitron', monospace;
+}
+
+/* Each HUD item stacks its small label above its big number. */
+.hud-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.hud-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
+  color: var(--text-dim);
+}
+
+/* The big glowing numbers. min-width: 3ch reserves room for at least 3 digits ("ch" is about the width of one zero) so the layout doesn't jiggle as numbers change. */
+.hud-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-shadow: var(--glow);
+  min-width: 3ch;
+  text-align: center;
+}
+
+/* These two rules override the color for ONE specific element each (found by its id), so the timer is yellow and the mine count is pink-red. */
+#timer-val { color: var(--accent3); text-shadow: 0 0 12px rgba(245,196,0,0.5); }
+#mines-val { color: var(--accent2); text-shadow: var(--glow2); }
+
+
+/*
+  ── GAME AREA (the space that holds the board) ──────────────────────────
+  Centers the board horizontally in the page.
+*/
+.game-area {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0 16px 40px;
+}
+
+/* A leftover wrapper style. position: relative makes it the reference point for anything positioned inside it. The current HTML doesn't use this id, but it is harmless. */
+#board-canvas-wrapper {
+  position: relative;
+}
+
+/*
+  The board itself.
+  - display: grid: turns on "CSS Grid", a layout tool that arranges children
+    in neat rows and columns, like a spreadsheet. JavaScript sets how many
+    columns and rows there are.
+  - user-select: none: stops the browser from highlighting the numbers as
+    text when you click or drag quickly.
+*/
+#board {
+  display: grid;
+  gap: 2px;
+  user-select: none;
+}
+
+
+/*
+  ── CELLS (the individual squares on the board) ─────────────────────────
+  Each square is 32px by 32px ("px" means pixels, the tiny dots of a
+  screen). The content is centered both ways using flexbox.
+  - font-weight: 700: bold text.
+  - position: relative: allows positioning tricks inside the cell.
+*/
+.cell {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.08s, transform 0.08s;
+  position: relative;
+  font-family: 'Orbitron', monospace;
+}
+
+/*
+  An "inactive" cell is a space that is NOT part of the chosen shape (for
+  example, the corners outside a diamond). It is made invisible and can't be
+  clicked. !important forces a rule to win over any other rule that might
+  conflict with it; it is a strong tool, so it's used sparingly.
+*/
+.cell.inactive {
+  background: transparent !important;
+  pointer-events: none;
+  border: none !important;
+}
+
+/*
+  A hidden (unopened) cell. The light top/left edge and dark bottom/right
+  edge fake a 3D "raised button" look.
+*/
+.cell.hidden {
+  background: var(--cell-hidden);
+  border: 1px solid var(--cell-border-light);
+  border-right-color: var(--cell-border-dark);
+  border-bottom-color: var(--cell-border-dark);
+}
+
+.cell.hidden:hover {
+  background: var(--cell-hover);
+  box-shadow: inset 0 0 8px rgba(0,245,196,0.1);   /* "inset" draws the glow INSIDE the box */
+}
+
+/* :active means "while the mouse button is being held down on it". scale(0.95) shrinks the cell slightly so it feels pressed. */
+.cell.hidden:active {
+  transform: scale(0.95);
+}
+
+/* A cell you have opened. */
+.cell.revealed {
+  background: var(--cell-revealed);
+  border: 1px solid rgba(255,255,255,0.04);
+  cursor: default;
+}
+
+/* A cell with a flag on it: a yellow outline. */
+.cell.flagged {
+  background: var(--cell-hidden);
+  border: 1px solid var(--flag-color);
+  box-shadow: inset 0 0 6px rgba(245,196,0,0.15);
+}
+
+/*
+  The mine you clicked (the one that ended the game). It uses an animation,
+  defined further below under the name "mineFlash", that runs for 0.3
+  seconds.
+*/
+.cell.mine-hit {
+  background: rgba(255,75,110,0.25);
+  border: 1px solid var(--mine-color);
+  box-shadow: inset 0 0 12px rgba(255,75,110,0.3), var(--glow2);
+  animation: mineFlash 0.3s ease;
+}
+
+/* The other mines, shown after you lose. */
+.cell.mine-revealed {
+  background: rgba(255,75,110,0.08);
+  border: 1px solid rgba(255,75,110,0.3);
+}
+
+/*
+  @keyframes defines an animation by describing how things look at different
+  points in time. This one starts the cell 20% too big (scale 1.2) and
+  shrinks it back to normal size, creating a quick "pop".
+*/
+@keyframes mineFlash {
+  0% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+
+/*
+  ── NUMBER COLORS ────────────────────────────────────────────────────────
+  An opened cell shows how many mines touch it. JavaScript gives that cell
+  a class like n1, n2, ... n8, and these rules color each number
+  differently so they are easy to tell apart at a glance.
+*/
+.n1 { color: #00c8ff; }
+.n2 { color: #00f5c4; }
+.n3 { color: #f5c400; }
+.n4 { color: #ff8c00; }
+.n5 { color: #ff4b6e; }
+.n6 { color: #c800ff; }
+.n7 { color: #ff00aa; }
+.n8 { color: #ffffff; }
+
+/* The size of the flag and mine symbols inside cells. */
+.flag-icon { font-size: 1rem; }
+.mine-icon { font-size: 1rem; }
+
+
+/*
+  ── OVERLAY (the win / lose pop-up) ──────────────────────────────────────
+  A full-screen dark layer with a message box in the middle. It starts
+  hidden (display: none means "don't show or take up space"). JavaScript
+  adds the class "show" to reveal it, and the second rule below switches
+  display to flex when that happens.
+  The z-index is 100, so the overlay sits above the game.
+*/
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+#overlay.show { display: flex; }
+
+/* The message box. The popIn animation (defined just below) makes it grow in with a slight bounce. */
+.overlay-box {
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 40px rgba(0,245,196,0.3);
+  padding: 40px 56px;
+  text-align: center;
+  animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* When you lose, the box switches from teal to pink-red. */
+.overlay-box.lose {
+  border-color: var(--accent2);
+  box-shadow: 0 0 40px rgba(255,75,110,0.3);
+}
+
+/* Starts the box smaller and see-through, then grows it to full size and fully visible. opacity: 0 is invisible, 1 is fully visible. */
+@keyframes popIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.overlay-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 2rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+}
+
+/* Title color: teal for winning, pink-red for losing. */
+.overlay-title.win { color: var(--accent); text-shadow: var(--glow); }
+.overlay-title.lose { color: var(--accent2); text-shadow: var(--glow2); }
+
+.overlay-sub {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-bottom: 24px;
+  letter-spacing: 0.15em;
+}
+
+/* The small instruction line about right-clicking to place flags. */
+.right-click-hint {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  padding-bottom: 12px;
+}
+
+
+/*
+  ── MUTE BUTTON ──────────────────────────────────────────────────────────
+  The sound on/off button. position: fixed with top and right values pins
+  it 18px from the top-right corner of the window, even when you scroll.
+*/
+.btn-mute {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.1em;
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 50;
+}
+.btn-mute:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
+/* When sound is muted, the button turns pink-red so you can tell at a glance. */
+.btn-mute.muted { border-color: var(--accent2); color: var(--accent2); }
+
+
+/*
+  ── SHAPE PREVIEW ICONS ──────────────────────────────────────────────────
+  Styles for the little pictures inside the shape buttons: the picture is
+  stacked above the shape name and sized to a small fixed area.
+*/
+.shape-btn-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.shape-preview {
+  width: 28px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Make the SVG picture fill its small box. */
+.shape-preview svg { width: 100%; height: 100%; }
